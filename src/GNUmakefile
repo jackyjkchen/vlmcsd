@@ -53,8 +53,6 @@ REAL_DLL_NAME=$(DLL_PREFIX)$(DLL_NAME)
 REAL_A_NAME=$(A_PREFIX)$(A_NAME)
 
 
-# crypto library to use for standard algos, could save ~1-2kb ;)
-# can be either 'openssl', 'polarssl' or anything other for internal impl
 CRYPTO ?= internal
 
 # use DNS_PARSER=internal if your OS doesn't supply the DNS parser routines
@@ -452,22 +450,7 @@ ifeq "$(WIN)" "1"
 	MULTI_OBJS += ../build/ntservice.o ../build/wintap.o
 endif
 
-ifeq ($(CRYPTO), openssl_with_aes)
-	BASECFLAGS += -D_CRYPTO_OPENSSL -D_USE_AES_FROM_OPENSSL
-	BASELDFLAGS += -lcrypto
-	SRCS += crypto_openssl.c
-else ifeq ($(CRYPTO), openssl_with_aes_soft)
-	BASECFLAGS += -D_CRYPTO_OPENSSL -D_USE_AES_FROM_OPENSSL -D_OPENSSL_SOFTWARE
-	BASELDFLAGS += -lcrypto
-	SRCS += crypto_openssl.c
-else ifeq ($(CRYPTO), openssl)
-	BASECFLAGS += -D_CRYPTO_OPENSSL
-	BASELDFLAGS += -lcrypto
-	SRCS += crypto_openssl.c
-else ifeq ($(CRYPTO), polarssl)
-	BASECFLAGS += -D_CRYPTO_POLARSSL
-	BASELDFLAGS += -lpolarssl
-else ifeq ($(CRYPTO), windows)
+ifeq ($(CRYPTO), windows)
 	BASECFLAGS += -D_CRYPTO_WINDOWS
 	SRCS += crypto_windows.c
 else
@@ -477,10 +460,6 @@ endif
 
 ifneq ($(STRIP),0)
 	BASELDFLAGS += $(STRIPFLAGS)
-endif
-
-ifeq ($(OPENSSL_HMAC),0)
-	BASECFLAGS += -D_OPENSSL_NO_HMAC
 endif
 
 ifeq ($(DEPENDENCIES),2)
